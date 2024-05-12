@@ -1,0 +1,17 @@
+{
+    "name": "cool3-contracts",
+    "private": true,
+    "workspaces": {
+        "packages": [
+            "packages/*"
+        ],
+        "nohoist": []
+    },
+    "resolutions": {
+        "xdeployer": "^3.0.9"
+    },
+    "scripts": {
+        "build": "yarn workspace cool3 build"
+    },
+    "devDependencies": {}
+}
