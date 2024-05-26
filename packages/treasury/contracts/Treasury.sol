@@ -21,7 +21,7 @@ contract Treasury {
         );
 
         // 1000 cool3 = 1 ETH
-        uint256 ethAmount = ((tokenAmount / 10 ** 18)) / 1000;
+        uint256 ethAmount = tokenAmount / 1000;
         require(msg.value >= ethAmount, "Insufficient ETH balance");
         IERC20(cool3).transfer(recipient, tokenAmount);
         emit ExchangeCool3(recipient, ethAmount);
@@ -35,7 +35,7 @@ contract Treasury {
         );
 
         // 1000 cool3 = 1 ETH
-        uint256 ethAmount = ((tokenAmount / 10 ** 18)) / 1000;
+        uint256 ethAmount = (tokenAmount) / 1000;
         require(address(this).balance >= ethAmount, "Insufficient ETH balance");
         payable(recipient).transfer(ethAmount);
         emit ExchangeETH(recipient, ethAmount);
