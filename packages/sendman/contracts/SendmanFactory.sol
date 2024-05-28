@@ -74,8 +74,12 @@ contract SendmanFactory is AdminLessERC1967Factory {
         if (!isContract(sendmanAddress)) {
             createSendman(_index, initData);
         }
+
+        // Collect Fee
         require(msg.value - value >= 0.001 ether, "Insufficient funds");
-        // 收集费用
+        payable(0xF46E1362612e83202C938CEaaf3CbAad15f9C0C8).transfer(
+            msg.value - value
+        );
 
         Sendman(payable(sendmanAddress)).execute{value: value}(
             to,

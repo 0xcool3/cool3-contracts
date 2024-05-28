@@ -22,7 +22,11 @@ contract GovernorFactory is AdminLessERC1967Factory {
         string memory _name,
         uint256 _index,
         bytes calldata _data
-    ) public returns (address) {
+    ) public payable returns (address) {
+        // Collect Fee
+        require(msg.value >= 0.05 ether, "Insufficient funds");
+        payable(0xF46E1362612e83202C938CEaaf3CbAad15f9C0C8).transfer(msg.value);
+
         bytes32 salt = bytes32(
             uint256(keccak256(abi.encodePacked(_data, _index))) &
                 type(uint96).max
