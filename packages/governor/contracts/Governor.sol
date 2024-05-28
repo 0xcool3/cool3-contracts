@@ -51,6 +51,7 @@ contract Governor is Compatibility {
         uint256 endTime;
         uint256 totalTokensYes;
         uint256 totalTokensNo;
+        bool isExcuted;
     }
 
     Proposal[] public proposals;
@@ -139,9 +140,24 @@ contract Governor is Compatibility {
                 startTime: startTime,
                 endTime: endTime,
                 totalTokensYes: 0,
-                totalTokensNo: 0
+                totalTokensNo: 0,
+                isExcuted: false
             })
         );
+
+        require(
+            token.transferFrom(
+                msg.sender,
+                address(this),
+                minimumTokensToCreateProposal
+            ),
+            "Failed to lock tokens"
+        );
+
+        voterTokens[msg.sender][
+            proposals.length - 1
+        ] += minimumTokensToCreateProposal;
+
         emit ProposalCreated(
             proposals.length - 1,
             msg.sender,
@@ -235,6 +251,10 @@ contract Governor is Compatibility {
         );
 
         Proposal memory prop = proposals[_proposalIndex];
+        require(
+            prop.isExcuted == false,
+            " Proposal has already been executed."
+        );
         bytes memory transactionData = prop.transactionData;
 
         address to;
