@@ -7,18 +7,24 @@ import {
   networksList,
   rpcUrlsList,
   rpcUrlsMap,
-} from "./network.config.ts";
+} from "./network.config";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
+  // settings: {
+  //   optimizer: {
+  //     enabled: true,
+  //     runs: 1000,
+  //   },
+  // },
   networks: rpcUrlsMap,
   xdeploy: {
-    contract: "Treasury",
+    contract: "COOL3",
     salt: "cool3.eth",
     signer: vars.get("PRIVATE_KEY", ""),
     networks: networksList,
     rpcUrls: rpcUrlsList,
-    gasLimit: 1_500_000, // optional; default value is `1.5e6`
+    gasLimit: 6_500_000,  
   },
   etherscan: {
     // Your API key for Etherscan

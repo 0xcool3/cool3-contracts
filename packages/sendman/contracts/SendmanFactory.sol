@@ -4,6 +4,14 @@ pragma solidity ^0.8.20;
 import "./Sendman.sol";
 import "./AdminLessERC1967Factory.sol";
 
+interface IPaymentProcessor {
+    function pay(
+        address feeToken,
+        uint256 tokenAmount,
+        address from
+    ) external payable;
+}
+
 contract SendmanFactory is AdminLessERC1967Factory {
     address[] public deployedSendmans;
     address public implementation;
@@ -62,6 +70,7 @@ contract SendmanFactory is AdminLessERC1967Factory {
     }
 
     function execute(
+        address feeToken,
         address to,
         uint256 value,
         bytes memory data,
@@ -76,10 +85,25 @@ contract SendmanFactory is AdminLessERC1967Factory {
         }
 
         // Collect Fee
-        require(msg.value - value >= 0.001 ether, "Insufficient funds");
+
         payable(0xF46E1362612e83202C938CEaaf3CbAad15f9C0C8).transfer(
             msg.value - value
         );
+
+        IPaymentProcessor processor = IPaymentProcessor(
+            0xF46E1362612e83202C938CEaaf3CbAad15f9C0C8
+        );
+
+        if (feeToken == address(0)) {
+            require(msg.value - value >= 0.001 ether, "Insufficient funds");
+            processor.pay(feeToken, msg.value - value, msg.sender);
+        } else {
+            processor.pay(
+                0xF46E1362612e83202C938CEaaf3CbAad15f9C0C8,
+                10 ** 17, // 0.1 COOL3
+                msg.sender
+            );
+        }
 
         Sendman(payable(sendmanAddress)).execute{value: value}(
             to,

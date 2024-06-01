@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @dev Allows the owner to withdraw a limited amount of tokens or Ether from the contract every 30 days.
  */
 contract TokenLock is Ownable {
+    address benificiary;
     uint256 public unlockBeginTime;
-    uint256 public unlockRate = 5;
-    uint256 public unlockWaitTime = 365 * 24 * 60 * 60;
+    uint256 public unlockRate = 1;
+    uint256 public unlockWaitTime = 30 days;
     uint256 public unlockPeriod = 30 days;
-    address public initOwner = 0x34b0387a072BeefdC9910AD20118D52432512193;
 
     // Mapping from token addresses to the last unlock time
     mapping(address => uint256) public lastUnlockTime;
@@ -26,10 +26,20 @@ contract TokenLock is Ownable {
     );
 
     /**
+     * @dev Allows the contract to receive Ether directly.
+     */
+    receive() external payable {}
+
+    /**
      * @dev Initializes the contract setting the initial owner.
      */
-    constructor() Ownable(initOwner) {
+    constructor(address initOwner) Ownable(initOwner) {
+        benificiary = initOwner;
         unlockBeginTime = block.timestamp + unlockWaitTime;
+    }
+
+    function setBenificiary(address _benificiary) public onlyOwner {
+        benificiary = _benificiary;
     }
 
     /**
@@ -53,24 +63,15 @@ contract TokenLock is Ownable {
 
         if (token == address(0)) {
             amount = (address(this).balance / 100) * unlockRate;
-            (bool sent, ) = payable(owner()).call{value: amount}("");
-            require(sent, "TokenLock: Failed to send Ether");
+            payable(benificiary).transfer(amount);
         } else {
             amount =
                 (IERC20(token).balanceOf(address(this)) / 100) *
                 unlockRate;
-            require(
-                IERC20(token).transfer(owner(), amount),
-                "TokenLock: Token transfer failed"
-            );
+            IERC20(token).transfer(benificiary, amount);
         }
 
         lastUnlockTime[token] = block.timestamp;
-        emit Withdrawal(token, amount, block.timestamp, owner());
+        emit Withdrawal(token, amount, block.timestamp, benificiary);
     }
-
-    /**
-     * @dev Allows the contract to receive Ether directly.
-     */
-    receive() external payable {}
 }
