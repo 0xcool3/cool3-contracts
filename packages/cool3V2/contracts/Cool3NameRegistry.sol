@@ -4,67 +4,52 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Cool3NameRegistry {
-    uint256 public immutable nativeCurrencyAmount = 0.02 ether;
-    uint256 public immutable cool3Amount = 2 * 10 ** 18; // 2 COOL3
+  //================== events =============================================
+  event NameRegistered(address indexed owner, string name, uint256 when);
+  event PubkeyRegistered(address indexed owner, bytes pubkey, uint256 when);
 
-    address public cool3Token;
-    address public feeCollector;
+  //================== constant fields ====================================
+  uint256 public constant NATIVE_CURRENCY_PRICE = 0.02 ether;
+  uint256 public constant COOL3_TOKEN_PRICE = 2 * 10 ** 18; // 2 COOL3
 
-    mapping(string => address) public nameToAddress;
-    mapping(address => string) public addressToName;
-    mapping(address => bytes) public pubkey;
+  //================== state variables ====================================
+  address public immutable cool3Token;
+  address public immutable feeCollector;
 
-    event NameRegistered(
-        address indexed owner,
-        string indexed name,
-        address indexed addr
-    );
+  mapping(string => address) public nameToAddress;
+  mapping(address => string) public addressToName;
+  mapping(address => bytes) public pubkey;
 
-    event PubkeyRegistered(address indexed owner, bytes indexed pubkey);
+  //================== constructor ========================================
+  constructor(address _cool3Token, address _feeCollector) {
+    cool3Token = _cool3Token;
+    feeCollector = _feeCollector;
+  }
 
-    constructor(address _cool3Token, address _feeCollector) {
-        cool3Token = _cool3Token;
-        feeCollector = _feeCollector;
+  //================== public functions ===================================
+  function registerName(string memory name, bool useNativeCurrencyPayment) public payable {
+    require(nameToAddress[name] == address(0), "Name already registered");
+    require(bytes(addressToName[msg.sender]).length == 0, "Name already registered");
+
+    if (useNativeCurrencyPayment == true) {
+      require(msg.value >= NATIVE_CURRENCY_PRICE, "registerName: Invalid amount");
+      payable(feeCollector).transfer(msg.value);
+    } else {
+      require(IERC20(cool3Token).transferFrom(msg.sender, feeCollector, COOL3_TOKEN_PRICE), "Transfer of COOL3 failed");
     }
 
-    function registerName(
-        string memory name,
-        bool isNativeCurrencyPayment
-    ) public payable {
-        require(nameToAddress[name] == address(0), "Name already registered");
-        require(
-            bytes(addressToName[msg.sender]).length == 0,
-            "Name already registered"
-        );
+    nameToAddress[name] = msg.sender;
+    addressToName[msg.sender] = name;
 
-        if (isNativeCurrencyPayment == true) {
-            require(
-                msg.value >= nativeCurrencyAmount,
-                "registerName: Invalid amount"
-            );
-            payable(feeCollector).transfer(msg.value);
-        } else {
-            IERC20(cool3Token).transferFrom(
-                msg.sender,
-                feeCollector,
-                cool3Amount
-            );
-        }
+    emit NameRegistered(msg.sender, name, block.timestamp);
+  }
 
-        nameToAddress[name] = msg.sender;
-        addressToName[msg.sender] = name;
+  function registerPubkey(bytes memory _pubkey) public {
+    pubkey[msg.sender] = _pubkey;
+    emit PubkeyRegistered(msg.sender, _pubkey, block.timestamp);
+  }
 
-        emit NameRegistered(msg.sender, name, msg.sender);
-    }
-
-    function registerPubkey(bytes memory _pubkey) public {
-        pubkey[msg.sender] = _pubkey;
-        emit PubkeyRegistered(msg.sender, _pubkey);
-    }
-
-    function getPubkeyByName(
-        string memory name
-    ) public view returns (bytes memory) {
-        return pubkey[nameToAddress[name]];
-    }
+  function getPubkeyByName(string memory name) public view returns (bytes memory) {
+    return pubkey[nameToAddress[name]];
+  }
 }

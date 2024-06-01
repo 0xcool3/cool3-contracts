@@ -4,23 +4,35 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Treasury is Ownable {
-    address benificiary;
+  //================== events =============================================
+  event Withdrawal(address indexed to, address indexed token, uint256 amount, uint256 when);
 
-    receive() external payable {}
+  //================== state variables ====================================
+  address public benificiary;
 
-    constructor(address initOwner) Ownable(initOwner) {
-        benificiary = initOwner;
+  //================== constructor ========================================
+  constructor(address initOwner) Ownable(initOwner) {
+    benificiary = initOwner;
+  }
+
+  //================== onlyOwner functions ================================
+  function setBenificiary(address _benificiary) public onlyOwner {
+    benificiary = _benificiary;
+  }
+
+  //================== public functions ===================================
+  receive() external payable {}
+
+  function withdraw(address token) public {
+    uint256 amount;
+    if (token == address(0)) {
+      amount = (address(this).balance);
+      payable(benificiary).transfer(amount);
+    } else {
+      amount = (IERC20(token).balanceOf(address(this)));
+      IERC20(token).transfer(benificiary, amount);
     }
 
-    function setBenificiary(address _benificiary) public onlyOwner {
-        benificiary = _benificiary;
-    }
-
-    function withdraw() public {
-        payable(benificiary).transfer(address(this).balance);
-    }
-
-    function withdrawERC20(address token, uint256 amount) public {
-        IERC20(token).transfer(benificiary, amount);
-    }
+    emit Withdrawal(benificiary, token, amount, block.timestamp);
+  }
 }
