@@ -2,6 +2,9 @@ export const rpcUrlsMap: any = {
   ganache: {
     url: "http://127.0.0.1:8545",
   },
+  // gnosis: {
+  //   url: "https://rpc.gnosischain.com",
+  // },
   // ethMain:{
   //   url: 'https://cloudflare-eth.com'
   // },
@@ -31,6 +34,14 @@ export const customChains = [
       browserURL: "http://localhost:180",
     },
   },
+  // {
+  //   network: "gnosis",
+  //   chainId: 100,
+  //   urls: {
+  //     apiURL: "https://api.gnosisscan.io/api",
+  //     browserURL: "https://gnosisscan.io",
+  //   },
+  // },
   // {
   //   network: "ethMain",
   //   chainId: 1,

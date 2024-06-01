@@ -27,11 +27,11 @@ contract Cool3NameRegistry {
   }
 
   //================== public functions ===================================
-  function registerName(string memory name, bool useNativeCurrencyPayment) public payable {
+  function registerName(string memory name, address tokenIn) public payable {
     require(nameToAddress[name] == address(0), "Name already registered");
     require(bytes(addressToName[msg.sender]).length == 0, "Name already registered");
 
-    if (useNativeCurrencyPayment == true) {
+    if (tokenIn == address(0)) {
       require(msg.value >= NATIVE_CURRENCY_PRICE, "registerName: Invalid amount");
       payable(feeCollector).transfer(msg.value);
     } else {
