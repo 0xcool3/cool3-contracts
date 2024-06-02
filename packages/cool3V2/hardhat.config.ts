@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
     signer: vars.get("PRIVATE_KEY", ""),
     networks: networksList,
     rpcUrls: rpcUrlsList,
-    gasLimit: 6_500_000,  
+    gasLimit: 5_500_000,  
   },
   etherscan: {
     // Your API key for Etherscan

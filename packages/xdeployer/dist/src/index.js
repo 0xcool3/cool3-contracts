@@ -305,7 +305,7 @@ const path_1 = __importDefault(require("path"));
 });
 (0, config_1.subtask)(constants_1.TASK_VERIFY_GASLIMIT).setAction(async (_, hre) => {
     if (hre.config.xdeploy.gasLimit &&
-        hre.config.xdeploy.gasLimit > 15 * 10 ** 6) {
+        hre.config.xdeploy.gasLimit > 15 * 10 ** 9) {
         throw new plugins_1.NomicLabsHardhatPluginError(constants_1.PLUGIN_NAME, `Please specify a lower gasLimit. Each block has currently 
       a target size of 15 million gas.`);
     }
