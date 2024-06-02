@@ -82,7 +82,7 @@ export const customChains = [
     network: "optimismMain",
     chainId: 10,
     urls: {
-      apiURL:'https://api-optimistic.etherscan.io',
+      apiURL:'https://api-optimistic.etherscan.io/api',
       browserURL:'https://optimistic.etherscan.io',
     },
   },
