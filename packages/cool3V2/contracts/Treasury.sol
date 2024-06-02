@@ -23,16 +23,12 @@ contract Treasury is Ownable {
   //================== public functions ===================================
   receive() external payable {}
 
-  function withdraw(address token) public {
-    uint256 amount;
+  function withdraw(address token, uint256 amount) public {
     if (token == address(0)) {
-      amount = (address(this).balance);
       payable(benificiary).transfer(amount);
     } else {
-      amount = (IERC20(token).balanceOf(address(this)));
       IERC20(token).transfer(benificiary, amount);
     }
-
     emit Withdrawal(benificiary, token, amount, block.timestamp);
   }
 }
