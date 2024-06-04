@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
   solidity: "0.8.24",
   networks: rpcUrlsMap,
   xdeploy: {
-    contract: "SendmanFactory",
+    contract: "Sendman",
     salt: "cool3.eth",
     signer: vars.get("PRIVATE_KEY", ""),
     networks: networksList,
